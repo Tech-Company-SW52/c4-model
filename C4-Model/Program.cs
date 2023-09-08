@@ -301,7 +301,7 @@ namespace c4_model_design
             hiringRepository.AddTags("PaymentRepository");
             paymentFacade.AddTags("PaymentFacade");
 
-            styles.Add(new ElementStyle("DomainLayerCE")
+            styles.Add(new ElementStyle("DomainLayerH")
             {
                 Shape = Shape.Component,
                 Background = "#facc2e",
@@ -385,19 +385,19 @@ namespace c4_model_design
                 Background = "#facc2e",
                 Icon = ""
             });
-            styles.Add(new ElementStyle("searchController")
+            styles.Add(new ElementStyle("SearchController")
             {
                 Shape = Shape.Component,
                 Background = "#facc2e",
                 Icon = ""
             });
-            styles.Add(new ElementStyle("searchApplicationService")
+            styles.Add(new ElementStyle("SearchApplicationService")
             {
                 Shape = Shape.Component,
                 Background = "#facc2e",
                 Icon = ""
             });
-            styles.Add(new ElementStyle("transportServiceRepository")
+            styles.Add(new ElementStyle("TransportServiceRepository")
             {
                 Shape = Shape.Component,
                 Background = "#facc2e",
