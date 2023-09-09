@@ -136,29 +136,37 @@ namespace c4_model_design
                 "Landing Page",
                 "los usuarios podrán visualizar las características de FastPorte",
                 "Bootstrap");
-            Container apiRest = fastPorte.AddContainer(
-                "API REST",
-                "API Rest",
+            Container apiGateway = fastPorte.AddContainer(
+                "API Gateway",
+                "API Gateway",
                 "Java - SpringBoot");
 
             Container personalData = fastPorte.AddContainer(
-                "Información personal",
+                "Personal Data Context",
                 "Informacion de usuario (mombre, edad, fotos, etc.)",
-                "Angular");
+                "Java - SpringBoot");
             Container search = fastPorte.AddContainer(
-                "Búsqueda de transportistas",
+                "Search Context",
                 "Búsqueda de transportistas según las características requeridas por el cliente",
-                "Angular");
+                "Java - SpringBoot");
             Container hiring = fastPorte.AddContainer(
+                "Hiring Context",
                 "Contratación del servicio",
-                "Contratación del servicio y pago del mismo",
-                "Angular");
+                "Java - SpringBoot");
+            Container paymentService = fastPorte.AddContainer(
+                "Payment Context",
+                "Pago del servicio",
+                "Java - SpringBoot");
             Container location = fastPorte.AddContainer(
-                "Ubicación del transportista",
+                "Location Context",
                 "Ubicación del transportista en tiempo real",
-                "Angular");
+                "Java - SpringBoot");
 
-            Container database = fastPorte.AddContainer("Database", "", "MySQL");
+            Container databasePD = fastPorte.AddContainer("Database Personal Data", "Información personal", "MySQL");
+            Container databaseS = fastPorte.AddContainer("Database Search", "Búsqueda de transportistas", "MySQL");
+            Container databaseH = fastPorte.AddContainer("Database Hiring", "Contratación del servicio", "MySQL");
+            Container databasePS = fastPorte.AddContainer("Database Payment", "Pago del servicio", "MySQL");
+            Container databaseL = fastPorte.AddContainer("Database Location", "Ubicación del transportista", "MySQL");
 
             client.Uses(mobileApplication, "Consulta");
             client.Uses(webApplication, "Consulta");
@@ -172,38 +180,49 @@ namespace c4_model_design
             carrier.Uses(webApplication, "Consulta");
             carrier.Uses(landingPage, "Consulta");
 
-            mobileApplication.Uses(apiRest, "API Request", "JSON/HTTPS");
-            webApplication.Uses(apiRest, "API Request", "JSON/HTTPS");
+            mobileApplication.Uses(apiGateway, "API Request", "JSON/HTTPS");
+            webApplication.Uses(apiGateway, "API Request", "JSON/HTTPS");
 
-            apiRest.Uses(personalData, "", "");
-            apiRest.Uses(search, "", "");
-            apiRest.Uses(hiring, "", "");
-            apiRest.Uses(location, "", "");
+            apiGateway.Uses(personalData, "", "");
+            apiGateway.Uses(search, "", "");
+            apiGateway.Uses(hiring, "", "");
+            apiGateway.Uses(paymentService, "", "");
+            apiGateway.Uses(location, "", "");
 
-            personalData.Uses(database, "", "");
-            search.Uses(database, "", "");
-            hiring.Uses(database, "", "");
-            location.Uses(database, "", "");
+            personalData.Uses(databasePD, "Writes and Read from", "");
+            personalData.Uses(reniec, "API Request", "JSON/HTTPS");
 
-            location.Uses(googleMaps, "API Request", "JSON/HTTPS");
+            search.Uses(databaseS, "Writes and Read from", "");
 
-            hiring.Uses(payment, "API Request", "JSON/HTTPS");
+            hiring.Uses(databaseH, "Writes and Read from", "");
             hiring.Uses(email, "API Request", "JSON/HTTPS");
 
-            apiRest.Uses(reniec, "API Request", "JSON/HTTPS");
+            paymentService.Uses(databasePS, "Writes and Read from", "");
+            paymentService.Uses(payment, "API Request", "JSON/HTTPS");
+
+            location.Uses(databaseL, "Writes and Read from", "");
+            location.Uses(googleMaps, "API Request", "JSON/HTTPS");
 
             // Tags
             mobileApplication.AddTags("MobileApp");
             webApplication.AddTags("WebApp");
             landingPage.AddTags("LandingPage");
-            apiRest.AddTags("APIRest");
-            database.AddTags("Database");
+            apiGateway.AddTags("APIGateway");
+
+            string databaseTag = "Database";
+
+            databasePD.AddTags(databaseTag);
+            databaseS.AddTags(databaseTag);
+            databaseH.AddTags(databaseTag);
+            databasePS.AddTags(databaseTag);
+            databaseL.AddTags(databaseTag);
 
             string contextTag = "Context";
 
             personalData.AddTags(contextTag);
             search.AddTags(contextTag);
             hiring.AddTags(contextTag);
+            paymentService.AddTags(contextTag);
             location.AddTags(contextTag);
 
             styles.Add(new ElementStyle("MobileApp")
@@ -227,18 +246,11 @@ namespace c4_model_design
                 Shape = Shape.WebBrowser,
                 Icon = ""
             });
-            styles.Add(new ElementStyle("APIRest")
+            styles.Add(new ElementStyle("APIGateway")
             {
                 Background = "#0000ff",
                 Color = "#ffffff",
                 Shape = Shape.RoundedBox,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("Database")
-            {
-                Background = "#ff0000",
-                Color = "#ffffff",
-                Shape = Shape.Cylinder,
                 Icon = ""
             });
             styles.Add(new ElementStyle(contextTag)
@@ -247,311 +259,18 @@ namespace c4_model_design
                 Shape = Shape.Hexagon,
                 Icon = ""
             });
+            styles.Add(new ElementStyle(databaseTag)
+            {
+                Background = "#ff0000",
+                Color = "#ffffff",
+                Shape = Shape.Cylinder,
+                Icon = ""
+            });
 
             ContainerView containerView =
                 viewSet.CreateContainerView(fastPorte, "Contenedor", "Diagrama de contenedores");
             contextView.PaperSize = PaperSize.A4_Landscape;
             containerView.AddAllElements();
-
-            // 3. Diagrama de Componentes
-
-            // Hiring
-
-            Component domainLayerH =
-                hiring.AddComponent("Domain Layer", "", "Angular");
-            Component hiringController = hiring.AddComponent(
-                "HiringController",
-                "REST API endpoints de contratación y pagos de servicios.",
-                "REST Controller");
-            Component hiringApplicationService = hiring.AddComponent(
-                "HiringApplicationService",
-                "Provee métodos para la contración de servicios de transporte.",
-                "Component");
-            Component paymentApplicationService = hiring.AddComponent(
-                "PaymentApplicationService",
-                "Provee métodos para el pago de contratos",
-                "Component");
-            Component hiringRepository = hiring.AddComponent(
-                "HiringRepository",
-                "Información de los contratos",
-                "Component");
-            Component paymentFacade =
-                hiring.AddComponent("Payment Facade", "", "Component");
-
-            apiRest.Uses(hiringController, "", "JSON/HTTPS");
-
-            hiringController.Uses(paymentApplicationService, "Invoca métodos de pago de contratos", "");
-            hiringController.Uses(hiringApplicationService, "Invoca métodos de contratación de servicios de trasnporte", "");
-
-            hiringApplicationService.Uses(domainLayerH, "Usa", "");
-
-            paymentApplicationService.Uses(domainLayerH, "Usa", "");
-            paymentApplicationService.Uses(paymentFacade, "Usa");
-            paymentApplicationService.Uses(hiringRepository, "", "");
-
-            hiringRepository.Uses(database, "", "");
-
-            paymentFacade.Uses(payment, "JSON/HTTPS");
-
-            // Tags
-            domainLayerH.AddTags("DomainLayerH");
-            hiringController.AddTags("HiringController");
-            paymentApplicationService.AddTags("PaymentApplicationService");
-            hiringApplicationService.AddTags("HiringApplicationService");
-            hiringRepository.AddTags("PaymentRepository");
-            paymentFacade.AddTags("PaymentFacade");
-
-            styles.Add(new ElementStyle("DomainLayerH")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("HiringController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("HiringApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentFacade")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewH =
-                viewSet.CreateComponentView(hiring, "Hiring", "Component Diagram");
-            componentViewH.PaperSize = PaperSize.A4_Landscape;
-            componentViewH.Add(webApplication);
-            componentViewH.Add(apiRest);
-            componentViewH.Add(database);
-            componentViewH.Add(payment);
-            componentViewH.Add(googleMaps);
-            componentViewH.AddAllComponents();
-
-            // Search
-
-            Component domainLayerS =
-                search.AddComponent("Domain Layer", "", "Angular");
-            Component searchController = search.AddComponent(
-                "SearchController",
-                "REST API endpoints de búsqueda de servicios.",
-                "REST Controller");
-            Component searchService = search.AddComponent(
-                "SearchApplicationService",
-                "Provee métodos para la búsqueda de servicios",
-                "Component");
-            Component transportServiceRepository = search.AddComponent(
-                "TransportServiceRepository",
-                "Información de los servicios de transporte",
-                "Component");
-
-            apiRest.Uses(searchController, "", "JSON/HTTPS");
-            searchController.Uses(searchService, "Invoca métodos de búsqueda");
-
-            searchService.Uses(domainLayerS, "Usa", "");
-            searchService.Uses(transportServiceRepository, "", "");
-
-            transportServiceRepository.Uses(database, "", "");
-
-            // Tags
-            domainLayerS.AddTags("DomainLayerS");
-            searchController.AddTags("SearchController");
-            searchService.AddTags("SearchApplicationService");
-            transportServiceRepository.AddTags("TransportServiceRepository");
-
-            styles.Add(new ElementStyle("DomainLayerS")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("SearchController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("SearchApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("TransportServiceRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewS = viewSet.CreateComponentView(search, "Search", "Component Diagram");
-            componentViewS.PaperSize = PaperSize.A4_Landscape;
-            componentViewS.Add(webApplication);
-            componentViewS.Add(apiRest);
-            componentViewS.Add(database);
-            componentViewS.AddAllComponents();
-
-            // Location
-
-            Component domainLayerL = location.AddComponent("Domain Layer", "", "");
-            Component locationController = location.AddComponent(
-                "SeguridadController",
-                "REST API endpoints de ubicación.",
-                "REST Controller");
-            Component locationService = location.AddComponent(
-                "LocationApplicationService",
-                "Provee métodos para la localización del usuario transportista.",
-                "Component");
-            Component carrierRepository = location.AddComponent(
-                "CarrierRepository",
-                "Información de los usuarios transportistas",
-                "Component");
-
-            apiRest.Uses(locationController, "", "JSON/HTTPS");
-            locationController.Uses(locationService, "Invoca métodos de localización");
-
-            locationService.Uses(domainLayerL, "Usa", "");
-            locationService.Uses(carrierRepository, "", "");
-
-            carrierRepository.Uses(database, "", "");
-
-            carrierRepository.Uses(googleMaps, "", "JSON/HTTPS");
-
-            // Tags
-            domainLayerL.AddTags("DomainLayerL");
-            locationController.AddTags("LocationController");
-            locationService.AddTags("LocationApplicationService");
-            carrierRepository.AddTags("CarrierRepository");
-
-            styles.Add(new ElementStyle("DomainLayerL")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("LocationController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("LocationApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("CarrierRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewL =
-                viewSet.CreateComponentView(location, "Location", "Component Diagram");
-            componentViewL.PaperSize = PaperSize.A4_Landscape;
-            componentViewL.Add(webApplication);
-            componentViewL.Add(apiRest);
-            componentViewL.Add(database);
-            componentViewL.Add(googleMaps);
-            componentViewL.AddAllComponents();
-
-            // Personal Data
-
-            Component domainLayerPD = personalData.AddComponent("Domain Layer", "", "");
-            Component personalDataController = personalData.AddComponent(
-                "PersonalDataController",
-                "REST API endpoints de información personal del usuario.",
-                "REST Controller");
-            Component personalDataService = personalData.AddComponent(
-                "PersonalDatApplicationService",
-                "Provee métodos para el apartado de información personal del usuario",
-                "Component");
-            Component carrierPDRepository = personalData.AddComponent(
-                "CarrierRepository",
-                "Información personal de los usuarios transportistas",
-                "Component");
-            Component clientPDRepository = personalData.AddComponent(
-                "ClientRepository",
-                "Información personal de los usuarios clientes",
-                "Component");
-
-            apiRest.Uses(personalDataController, "", "JSON/HTTPS");
-            personalDataController.Uses(personalDataService, "Invoca métodos de información personal");
-
-            personalDataService.Uses(domainLayerPD, "Usa", "");
-            personalDataService.Uses(carrierPDRepository, "", "");
-            personalDataService.Uses(clientPDRepository, "", "");
-
-            carrierPDRepository.Uses(database, "", "");
-            clientPDRepository.Uses(database, "", "");
-
-            // Tags
-            domainLayerPD.AddTags("DomainLayerPD");
-            personalDataController.AddTags("PersonalDataController");
-            personalDataService.AddTags("PersonalDataApplicationService");
-            carrierPDRepository.AddTags("CarrierPDRepository");
-            clientPDRepository.AddTags("ClientPDRepository");
-
-            styles.Add(new ElementStyle("DomainLayerPD")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PersonalDataController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PersonalDataApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("CarrierPDRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("ClientPDRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewPD = viewSet.CreateComponentView(
-                personalData, "Información personal", "Component Diagram");
-            componentViewPD.PaperSize = PaperSize.A4_Landscape;
-            componentViewPD.Add(webApplication);
-            componentViewPD.Add(apiRest);
-            componentViewPD.Add(database);
-            componentViewPD.AddAllComponents();
 
             structurizrClient.UnlockWorkspace(workspaceId);
             structurizrClient.PutWorkspace(workspaceId, workspace);
