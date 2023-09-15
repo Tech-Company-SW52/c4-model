@@ -272,6 +272,369 @@ namespace c4_model_design
             contextView.PaperSize = PaperSize.A4_Landscape;
             containerView.AddAllElements();
 
+            // 3. Diagrama de Componentes
+
+            // Search
+
+            Component domainLayerS =
+                search.AddComponent("Domain Layer", "", "Angular");
+            Component searchController = search.AddComponent(
+                "SearchController",
+                "REST API endpoints de búsqueda de servicios.",
+                "REST Controller");
+            Component searchService = search.AddComponent(
+                "SearchApplicationService",
+                "Provee métodos para la búsqueda de servicios",
+                "Component");
+            Component transportServiceRepository = search.AddComponent(
+                "TransportServiceRepository",
+                "Información de los servicios de transporte",
+                "Component");
+
+            apiGateway.Uses(searchController, "", "JSON/HTTPS");
+            searchController.Uses(searchService, "Invoca métodos de búsqueda");
+
+            searchService.Uses(domainLayerS, "Usa", "");
+            searchService.Uses(transportServiceRepository, "", "");
+
+            transportServiceRepository.Uses(databaseS, "", "");
+
+            // Tags
+            domainLayerS.AddTags("DomainLayerS");
+            searchController.AddTags("SearchController");
+            searchService.AddTags("SearchApplicationService");
+            transportServiceRepository.AddTags("TransportServiceRepository");
+
+            styles.Add(new ElementStyle("DomainLayerS")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("SearchController")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("SearchApplicationService")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("TransportServiceRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+
+            ComponentView componentViewS = viewSet.CreateComponentView(search, "Search", "Component Diagram");
+            componentViewS.PaperSize = PaperSize.A4_Landscape;
+            componentViewS.Add(webApplication);
+            componentViewS.Add(apiGateway);
+            componentViewS.Add(databaseS);
+            componentViewS.AddAllComponents();
+
+            // Hiring
+
+            Component domainLayerH =
+                hiring.AddComponent("Domain Layer", "", "Angular");
+            Component hiringController = hiring.AddComponent(
+                "HiringController",
+                "REST API endpoints de contratación y pagos de servicios.",
+                "REST Controller");
+            Component hiringApplicationService = hiring.AddComponent(
+                "HiringApplicationService",
+                "Provee métodos para la contración de servicios de transporte.",
+                "Component");
+            Component hiringRepository = hiring.AddComponent(
+                "HiringRepository",
+                "Información de los contratos",
+                "Component");
+
+            apiGateway.Uses(hiringController, "", "JSON/HTTPS");
+
+            hiringController.Uses(hiringApplicationService, "Invoca métodos de contratación de servicios de trasnporte", "");
+
+            hiringApplicationService.Uses(domainLayerH, "Usa", "");
+            hiringApplicationService.Uses(hiringRepository, "Usa", "");
+
+            hiringRepository.Uses(databaseH, "", "");
+
+            // Tags
+            domainLayerH.AddTags("DomainLayerH");
+            hiringController.AddTags("HiringController");
+            hiringApplicationService.AddTags("HiringApplicationService");
+            hiringRepository.AddTags("HiringRepository");
+
+            styles.Add(new ElementStyle("DomainLayerH")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("HiringController")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("HiringApplicationService")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("HiringRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+
+            ComponentView componentViewH =
+                viewSet.CreateComponentView(hiring, "Hiring", "Component Diagram");
+            componentViewH.PaperSize = PaperSize.A4_Landscape;
+            componentViewH.Add(webApplication);
+            componentViewH.Add(apiGateway);
+            componentViewH.Add(databaseH);
+            componentViewH.AddAllComponents();
+
+            // PaymentService
+
+            Component domainLayerPS =
+                paymentService.AddComponent("Domain Layer", "", "Angular");
+            Component paymentServiceController = paymentService.AddComponent(
+                "PaymentServiceController",
+                "REST API endpoints de contratación y pagos de servicios.",
+                "REST Controller");
+            Component paymentServiceApplicationService = paymentService.AddComponent(
+                "PaymentServiceApplicationService",
+                "Provee métodos para el pago de contratos",
+                "Component");
+            Component paymentServiceRepository = paymentService.AddComponent(
+                "PaymentServiceRepository",
+                "Información de los contratos",
+                "Component");
+            Component paymentFacade =
+                paymentService.AddComponent("PaymentFacade", "", "Component");
+
+            apiGateway.Uses(paymentServiceController, "", "JSON/HTTPS");
+
+            paymentServiceController.Uses(paymentServiceApplicationService, "Invoca métodos de pago de contratos", "");
+            paymentServiceController.Uses(paymentServiceApplicationService, "Invoca métodos de contratación de servicios de trasnporte", "");
+
+            paymentServiceApplicationService.Uses(domainLayerPS, "Usa", "");
+
+            paymentServiceApplicationService.Uses(domainLayerPS, "Usa", "");
+            paymentServiceApplicationService.Uses(paymentFacade, "Usa");
+            paymentServiceApplicationService.Uses(paymentServiceRepository, "", "");
+
+            paymentServiceRepository.Uses(databasePS, "", "");
+
+            paymentFacade.Uses(payment, "JSON/HTTPS");
+
+            // Tags
+            domainLayerPS.AddTags("DomainLayerPS");
+            paymentServiceController.AddTags("PaymentServiceController");
+            paymentServiceApplicationService.AddTags("PaymentServiceApplicationService");
+            paymentServiceRepository.AddTags("PaymentServiceRepository");
+            paymentFacade.AddTags("PaymentFacade");
+
+            styles.Add(new ElementStyle("DomainLayerPS")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PaymentServiceController")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PaymentServiceApplicationService")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PaymentServiceRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PaymentFacade")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+
+            ComponentView componentViewPS =
+                viewSet.CreateComponentView(paymentService, "PaymentService", "Component Diagram");
+            componentViewPS.PaperSize = PaperSize.A4_Landscape;
+            componentViewPS.Add(webApplication);
+            componentViewPS.Add(apiGateway);
+            componentViewPS.Add(databasePS);
+            componentViewPS.Add(payment);
+            componentViewPS.AddAllComponents();
+
+            // Location
+
+            Component domainLayerL = location.AddComponent("Domain Layer", "", "");
+            Component locationController = location.AddComponent(
+                "SeguridadController",
+                "REST API endpoints de ubicación.",
+                "REST Controller");
+            Component locationService = location.AddComponent(
+                "LocationApplicationService",
+                "Provee métodos para la localización del usuario transportista.",
+                "Component");
+            Component carrierRepository = location.AddComponent(
+                "CarrierRepository",
+                "Información de los usuarios transportistas",
+                "Component");
+            Component locationFacade =
+                location.AddComponent("LocationFacade", "", "Component");
+
+            apiGateway.Uses(locationController, "", "JSON/HTTPS");
+            locationController.Uses(locationService, "Invoca métodos de localización");
+
+            locationService.Uses(domainLayerL, "Usa", "");
+            locationService.Uses(carrierRepository, "", "");
+            locationService.Uses(locationFacade, "Usa", "");
+
+            carrierRepository.Uses(databaseL, "", "");
+
+            locationFacade.Uses(googleMaps, "", "JSON/HTTPS");
+
+            // Tags
+            domainLayerL.AddTags("DomainLayerL");
+            locationController.AddTags("LocationController");
+            locationService.AddTags("LocationApplicationService");
+            carrierRepository.AddTags("CarrierRepository");
+            locationFacade.AddTags("LocationFacade");
+
+            styles.Add(new ElementStyle("DomainLayerL")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("LocationController")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("LocationApplicationService")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("LocationFacade")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("CarrierRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+
+            ComponentView componentViewL =
+                viewSet.CreateComponentView(location, "Location", "Component Diagram");
+            componentViewL.PaperSize = PaperSize.A4_Landscape;
+            componentViewL.Add(webApplication);
+            componentViewL.Add(apiGateway);
+            componentViewL.Add(databaseL);
+            componentViewL.Add(googleMaps);
+            componentViewL.AddAllComponents();
+
+            // Personal Data
+
+            Component domainLayerPD = personalData.AddComponent("Domain Layer", "", "");
+            Component personalDataController = personalData.AddComponent(
+                "PersonalDataController",
+                "REST API endpoints de información personal del usuario.",
+                "REST Controller");
+            Component personalDataService = personalData.AddComponent(
+                "PersonalDatApplicationService",
+                "Provee métodos para el apartado de información personal del usuario",
+                "Component");
+            Component carrierPDRepository = personalData.AddComponent(
+                "CarrierRepository",
+                "Información personal de los usuarios transportistas",
+                "Component");
+            Component clientPDRepository = personalData.AddComponent(
+                "ClientRepository",
+                "Información personal de los usuarios clientes",
+                "Component");
+
+            apiGateway.Uses(personalDataController, "", "JSON/HTTPS");
+            personalDataController.Uses(personalDataService, "Invoca métodos de información personal");
+
+            personalDataService.Uses(domainLayerPD, "Usa", "");
+            personalDataService.Uses(carrierPDRepository, "", "");
+            personalDataService.Uses(clientPDRepository, "", "");
+
+            carrierPDRepository.Uses(databasePD, "", "");
+            clientPDRepository.Uses(databasePD, "", "");
+
+            // Tags
+            domainLayerPD.AddTags("DomainLayerPD");
+            personalDataController.AddTags("PersonalDataController");
+            personalDataService.AddTags("PersonalDataApplicationService");
+            carrierPDRepository.AddTags("CarrierPDRepository");
+            clientPDRepository.AddTags("ClientPDRepository");
+
+            styles.Add(new ElementStyle("DomainLayerPD")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PersonalDataController")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("PersonalDataApplicationService")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("CarrierPDRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+            styles.Add(new ElementStyle("ClientPDRepository")
+            {
+                Shape = Shape.Component,
+                Background = "#facc2e",
+                Icon = ""
+            });
+
+            ComponentView componentViewPD = viewSet.CreateComponentView(
+                personalData, "Información personal", "Component Diagram");
+            componentViewPD.PaperSize = PaperSize.A4_Landscape;
+            componentViewPD.Add(webApplication);
+            componentViewPD.Add(apiGateway);
+            componentViewPD.Add(databasePD);
+            componentViewPD.AddAllComponents();
+
             structurizrClient.UnlockWorkspace(workspaceId);
             structurizrClient.PutWorkspace(workspaceId, workspace);
         }
