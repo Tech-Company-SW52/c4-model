@@ -5,6 +5,8 @@ namespace c4_model_design
 {
     class Program
     {
+        private const string notString = "";
+
         static void Main(string[] args)
         {
             RenderModels();
@@ -12,546 +14,353 @@ namespace c4_model_design
 
         static void RenderModels()
         {
-            const long workspaceId = 85947;
-            const string apiKey = "b57c77e3-b8c6-4611-97f7-658da42d0a69";
-            const string apiSecret = "1da66943-8509-48d0-9d34-5efe249f2dd3";
+            const long workspaceId = 86156;
+            const string apiKey = "54ba985e-1536-4856-9c02-01b75136f29c";
+            const string apiSecret = "7bab3af8-2cd8-4cf2-bba9-e1e4044f6bc9";
 
             StructurizrClient structurizrClient = new StructurizrClient(apiKey, apiSecret);
 
-            Workspace workspace = new Workspace("C4 Model", "FastPorte");
+            Workspace workspace = new Workspace("C4-Structurizer Model", "FastPorte");
 
             ViewSet viewSet = workspace.Views;
 
             Model model = workspace.Model;
 
-            // 1. Diagrama de Contexto
-            SoftwareSystem fastPorte = model.AddSoftwareSystem(
-                "FastPorte",
-                "Software que conectará transportistas de diferentes rubros (independientes o empresas) con personas (clientes o personas naturales) que requieren de sus servicios.");
-            SoftwareSystem googleMaps = model.AddSoftwareSystem(
-                "Google Maps", "Plataforma que ofrece una REST API de información geo referencial.");
-            SoftwareSystem reniec = model.AddSoftwareSystem(
-                "RENIEC System",
-                "Organización autónoma del Estado Peruano encargada de la validación de datos.");
-            SoftwareSystem email = model.AddSoftwareSystem(
-                "E-mail System",
-                "Sistema de confirmación de servicios mediante correo.");
-            SoftwareSystem payment = model.AddSoftwareSystem(
-                "Payment System",
-                "Intermediario de pagos.");
+            // Diagrama de Contexto para la Arquitectura de Microblogging
 
-            Person client =
-                model.AddPerson("Client", "Persona que requiere de algún servicio de transporte.");
-            Person carrier =
-                model.AddPerson("Carrier", "Trabajadores el sector transporte que quieran brindar sus servicios.");
-            Person admin = model.AddPerson("Admin", "Usuario administrador.");
+            SoftwareSystem microbloggingPlatform = model.AddSoftwareSystem(
+                "Microblogging Platform",
+                "Plataforma descentralizada de microblogging para compartir conocimiento en grupos empresariales o comunidades."
+            );
 
-            client.Uses(fastPorte, "Contacta con transportistas.");
-            carrier.Uses(fastPorte, "Promociona sus servicios de transporte.");
-            admin.Uses(fastPorte, "Usuario administrador del sistema.");
+            SoftwareSystem apiGateway = model.AddSoftwareSystem(
+                "API Gateway",
+                "Interfaz para el acceso a la plataforma mediante diferentes tipos de usuarios y conexiones remotas.");
 
-            fastPorte.Uses(googleMaps, "Usa la API de google maps");
-            fastPorte.Uses(reniec, "Verifica datos de los usuarios");
-            fastPorte.Uses(email, "Envia correos de confirmación de servicios");
-            fastPorte.Uses(payment, "Realiza pagos mediante la aplicación");
+            SoftwareSystem rubyBackend = model.AddSoftwareSystem(
+                "Ruby Backend",
+                "Módulos en Ruby para la lógica de negocio, respuestas, etiquetado, moderación, etc.");
+
+            SoftwareSystem postgresDatabase = model.AddSoftwareSystem(
+                "PostgreSQL Database",
+                "Base de datos principal para almacenar usuarios y posts.");
+
+            SoftwareSystem redisServer = model.AddSoftwareSystem(
+                "Redis Server",
+                "Servidor de cache y almacenamiento de datos para los jobs del sistema.");
+
+            SoftwareSystem sideKiq = model.AddSoftwareSystem(
+                "SideKiq",
+                "Framework de Ruby para manejar jobs del sistema.");
+
+            SoftwareSystem elasticsearch = model.AddSoftwareSystem(
+                "Amazon ElasticSearch",
+                "Servicio para indexar y buscar posts.");
+
+            SoftwareSystem syncServer = model.AddSoftwareSystem(
+                "Sync Server",
+                "Servidor para manejar pedidos de Stream de sincronización de datos.");
+
+            SoftwareSystem fileStorage = model.AddSoftwareSystem(
+                "File Storage",
+                "Almacenamiento de archivos anexados a los posts.");
+
+            Person webUser = model.AddPerson("Web User", "Usuario que accede a la plataforma a través de la interfase web.");
+            Person mobileUser = model.AddPerson("Mobile User", "Usuario que accede a la plataforma a través de la interfase móvil.");
+            Person apiUser = model.AddPerson("API User", "Usuario con conexión de API.");
+            Person remoteInstanceUser = model.AddPerson("Remote Instance User", "Usuario en una instancia remota de Microblogging.");
+
+            webUser.Uses(apiGateway, "Accede a la plataforma");
+            mobileUser.Uses(apiGateway, "Accede a la plataforma");
+            apiUser.Uses(apiGateway, "Accede a la plataforma");
+            remoteInstanceUser.Uses(apiGateway, "Interactúa con otras instancias");
+
+            apiGateway.Uses(rubyBackend, "Procesa peticiones");
+            rubyBackend.Uses(postgresDatabase, "Almacena y recupera datos");
+            rubyBackend.Uses(redisServer, "Cachea datos y maneja jobs");
+            rubyBackend.Uses(sideKiq, "Programa y maneja jobs");
+            rubyBackend.Uses(elasticsearch, "Indexa y busca posts");
+            rubyBackend.Uses(syncServer, "Sincroniza datos con otras instancias");
+            rubyBackend.Uses(fileStorage, "Almacena archivos");
 
             // Tags
-            client.AddTags("Client");
-            carrier.AddTags("Carrier");
-            admin.AddTags("Admin");
-            fastPorte.AddTags("FastPorte");
-            googleMaps.AddTags("GoogleMaps");
-            reniec.AddTags("RENIEC System");
-            email.AddTags("E-mail System");
-            payment.AddTags("Payment System");
+            webUser.AddTags("Web User");
+            mobileUser.AddTags("Mobile User");
+            apiUser.AddTags("API User");
+            remoteInstanceUser.AddTags("Remote Instance User");
+            microbloggingPlatform.AddTags("Microblogging Platform");
+            apiGateway.AddTags("API Gateway");
+            rubyBackend.AddTags("Ruby Backend");
+            postgresDatabase.AddTags("PostgreSQL Database");
+            redisServer.AddTags("Redis Server");
+            sideKiq.AddTags("SideKiq");
+            elasticsearch.AddTags("Amazon ElasticSearch");
+            syncServer.AddTags("Sync Server");
+            fileStorage.AddTags("File Storage");
 
             Styles styles = viewSet.Configuration.Styles;
 
-            styles.Add(new ElementStyle("Client")
-            {
-                Background = "#0a60ff",
-                Color = "#ffffff",
-                Shape = Shape.Person
-            });
-            styles.Add(new ElementStyle("Carrier")
-            {
-                Background = "#0a60ff",
-                Color = "#ffffff",
-                Shape = Shape.Person
-            });
-            styles.Add(new ElementStyle("Admin")
-            {
-                Background = "#aa60af",
-                Color = "#ffffff",
-                Shape = Shape.Person
-            });
-            styles.Add(new ElementStyle("FastPorte")
-            {
-                Background = "#008f39",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox
-            });
-            styles.Add(new ElementStyle("GoogleMaps")
-            {
-                Background = "#90714c",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox
-            });
-            styles.Add(new ElementStyle("RENIEC System")
-            {
-                Background = "#7971eb",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox
-            });
-            styles.Add(new ElementStyle("E-mail System")
-            {
-                Background = "#2f95c7",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox
-            });
-            styles.Add(new ElementStyle("Payment System")
-            {
-                Background = "#f29549",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox
-            });
-
+            styles.Add(new ElementStyle("Web User") { Background = "#0a60ff", Color = "#ffffff", Shape = Shape.Person });
+            styles.Add(new ElementStyle("Mobile User") { Background = "#0a60ff", Color = "#ffffff", Shape = Shape.Person });
+            styles.Add(new ElementStyle("API User") { Background = "#0a60ff", Color = "#ffffff", Shape = Shape.Person });
+            styles.Add(new ElementStyle("Remote Instance User") { Background = "#aa60af", Color = "#ffffff", Shape = Shape.Person });
+            styles.Add(new ElementStyle("Microblogging Platform") { Background = "#008f39", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("API Gateway") { Background = "#90714c", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("Ruby Backend") { Background = "#7971eb", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("PostgreSQL Database") { Background = "#2f95c7", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("Redis Server") { Background = "#f29549", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("SideKiq") { Background = "#f2d349", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("Amazon ElasticSearch") { Background = "#7f8c8d", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("Sync Server") { Background = "#c0392b", Color = "#ffffff", Shape = Shape.RoundedBox });
+            styles.Add(new ElementStyle("File Storage") { Background = "#d35400", Color = "#ffffff", Shape = Shape.RoundedBox });
             SystemContextView contextView =
-                viewSet.CreateSystemContextView(fastPorte, "Contexto", "Diagrama de contexto");
+                viewSet.CreateSystemContextView(microbloggingPlatform, "Contexto", "Diagrama de contexto de la Arquitectura de Microblogging");
             contextView.PaperSize = PaperSize.A4_Landscape;
             contextView.AddAllSoftwareSystems();
             contextView.AddAllPeople();
-
-            // 2. Diagrama de Contenedores
-
-            Container mobileApplication = fastPorte.AddContainer(
+            // Diagrama de Contenedores
+            Container mobileApplication = microbloggingPlatform.AddContainer(
                 "Mobile App",
-                "los clientes podrán contratar los servicios de transporte desde su celular",
+                "Los usuarios podrán interactuar con la plataforma de microblogging desde su celular",
                 "Flutter/Dart");
-            Container webApplication = fastPorte.AddContainer(
+            Container webApplication = microbloggingPlatform.AddContainer(
                 "Web App",
-                "los clientes podrán contratar los servicios de transporte desde la web",
+                "Los usuarios podrán interactuar con la plataforma de microblogging desde la web",
                 "Angular");
-            Container landingPage = fastPorte.AddContainer(
-                "Landing Page",
-                "los usuarios podrán visualizar las características de FastPorte",
-                "Bootstrap");
-            Container apiRest = fastPorte.AddContainer(
-                "API REST",
-                "API Rest",
+            Container apiGatewayContainer = microbloggingPlatform.AddContainer(
+                "API Gateway",
+                "API para manejar las peticiones de los clientes y comunicarse con los módulos del backend",
                 "Java - SpringBoot");
 
-            Container personalData = fastPorte.AddContainer(
-                "Información personal",
-                "Informacion de usuario (mombre, edad, fotos, etc.)",
-                "Angular");
-            Container search = fastPorte.AddContainer(
-                "Búsqueda de transportistas",
-                "Búsqueda de transportistas según las características requeridas por el cliente",
-                "Angular");
-            Container hiring = fastPorte.AddContainer(
-                "Contratación del servicio",
-                "Contratación del servicio y pago del mismo",
-                "Angular");
-            Container location = fastPorte.AddContainer(
-                "Ubicación del transportista",
-                "Ubicación del transportista en tiempo real",
-                "Angular");
+            Container postsModule = microbloggingPlatform.AddContainer(
+                "Módulo de Posts",
+                "Gestión de creación, edición y eliminación de posts",
+                "Ruby");
+            Container responsesModule = microbloggingPlatform.AddContainer(
+                "Módulo de Respuestas",
+                "Gestión de respuestas a posts y a otras respuestas",
+                "Ruby");
+            Container usersModule = microbloggingPlatform.AddContainer(
+                "Módulo de Usuarios",
+                "Gestión de información de usuarios",
+                "Ruby");
+            Container notificationsModule = microbloggingPlatform.AddContainer(
+                "Módulo de Notificaciones",
+                "Gestión de notificaciones",
+                "Ruby");
+            Container moderationModule = microbloggingPlatform.AddContainer(
+                "Módulo de Moderación",
+                "Gestión de reglas de moderación y reportes",
+                "Ruby");
 
-            Container database = fastPorte.AddContainer("Database", "", "MySQL");
+            Container database = microbloggingPlatform.AddContainer("Database", "Almacenamiento de datos", "PostgreSQL");
+            Container cacheServer = microbloggingPlatform.AddContainer("Cache Server", "Servidor de cache y jobs", "Redis");
+            Container searchService = microbloggingPlatform.AddContainer("Search Service", "Servicio de búsqueda de posts", "Amazon ElasticSearch");
+            Container syncService = microbloggingPlatform.AddContainer("Sync Service", "Servicio de sincronización de datos", "Node.js");
+            Container fileStorageContainer = microbloggingPlatform.AddContainer(
+    "File Storage",
+    "Almacenamiento de archivos multimedia",
+    "Amazon S3");
+            webUser.Uses(mobileApplication, "Interactúa");
+            webUser.Uses(webApplication, "Interactúa");
 
-            client.Uses(mobileApplication, "Consulta");
-            client.Uses(webApplication, "Consulta");
-            client.Uses(landingPage, "Consulta");
+            mobileApplication.Uses(apiGateway, "API Request", "JSON/HTTPS");
+            webApplication.Uses(apiGateway, "API Request", "JSON/HTTPS");
 
-            admin.Uses(mobileApplication, "Consulta");
-            admin.Uses(webApplication, "Consulta");
-            admin.Uses(landingPage, "Consulta");
+            apiGateway.Uses(postsModule, "API Request", "JSON/HTTPS");
+            apiGateway.Uses(responsesModule, "API Request", "JSON/HTTPS");
+            apiGateway.Uses(usersModule, "API Request", "JSON/HTTPS");
+            apiGateway.Uses(notificationsModule, "API Request", "JSON/HTTPS");
+            apiGateway.Uses(moderationModule, "API Request", "JSON/HTTPS");
 
-            carrier.Uses(mobileApplication, "Consulta");
-            carrier.Uses(webApplication, "Consulta");
-            carrier.Uses(landingPage, "Consulta");
+            postsModule.Uses(database, "CRUD Operations");
+            responsesModule.Uses(database, "CRUD Operations");
+            usersModule.Uses(database, "CRUD Operations");
+            notificationsModule.Uses(database, "CRUD Operations");
+            moderationModule.Uses(database, "CRUD Operations");
 
-            mobileApplication.Uses(apiRest, "API Request", "JSON/HTTPS");
-            webApplication.Uses(apiRest, "API Request", "JSON/HTTPS");
+            postsModule.Uses(cacheServer, "Cache Operations");
+            responsesModule.Uses(cacheServer, "Cache Operations");
+            notificationsModule.Uses(cacheServer, "Cache Operations");
 
-            apiRest.Uses(personalData, "", "");
-            apiRest.Uses(search, "", "");
-            apiRest.Uses(hiring, "", "");
-            apiRest.Uses(location, "", "");
+            postsModule.Uses(searchService, "Index/Query", "JSON/HTTPS");
+            searchService.Uses(database, "Query");
 
-            personalData.Uses(database, "", "");
-            search.Uses(database, "", "");
-            hiring.Uses(database, "", "");
-            location.Uses(database, "", "");
+            postsModule.Uses(syncService, "Sync Data", "Websockets/HTTPS");
+            responsesModule.Uses(syncService, "Sync Data", "Websockets/HTTPS");
 
-            location.Uses(googleMaps, "API Request", "JSON/HTTPS");
-
-            hiring.Uses(payment, "API Request", "JSON/HTTPS");
-            hiring.Uses(email, "API Request", "JSON/HTTPS");
-
-            apiRest.Uses(reniec, "API Request", "JSON/HTTPS");
-
+            postsModule.Uses(fileStorage, "Store/Retrieve Files", "HTTPS");
+            responsesModule.Uses(fileStorage, "Store/Retrieve Files", "HTTPS");
             // Tags
             mobileApplication.AddTags("MobileApp");
             webApplication.AddTags("WebApp");
-            landingPage.AddTags("LandingPage");
-            apiRest.AddTags("APIRest");
+            apiGateway.AddTags("APIGateway");
+            postsModule.AddTags("PostsModule");
+            responsesModule.AddTags("ResponsesModule");
+            usersModule.AddTags("UsersModule");
+            notificationsModule.AddTags("NotificationsModule");
+            moderationModule.AddTags("ModerationModule");
             database.AddTags("Database");
+            cacheServer.AddTags("CacheServer");
+            searchService.AddTags("SearchService");
+            syncService.AddTags("SyncService");
+            fileStorage.AddTags("FileStorage");
 
             string contextTag = "Context";
 
-            personalData.AddTags(contextTag);
-            search.AddTags(contextTag);
-            hiring.AddTags(contextTag);
-            location.AddTags(contextTag);
+            postsModule.AddTags(contextTag);
+            responsesModule.AddTags(contextTag);
+            usersModule.AddTags(contextTag);
+            notificationsModule.AddTags(contextTag);
+            moderationModule.AddTags(contextTag);
 
-            styles.Add(new ElementStyle("MobileApp")
-            {
-                Background = "#9d33d6",
-                Color = "#ffffff",
-                Shape = Shape.MobileDevicePortrait,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("WebApp")
-            {
-                Background = "#7be3af",
-                Color = "#ffffff",
-                Shape = Shape.WebBrowser,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("LandingPage")
-            {
-                Background = "#929000",
-                Color = "#ffffff",
-                Shape = Shape.WebBrowser,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("APIRest")
-            {
-                Background = "#0000ff",
-                Color = "#ffffff",
-                Shape = Shape.RoundedBox,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("Database")
-            {
-                Background = "#ff0000",
-                Color = "#ffffff",
-                Shape = Shape.Cylinder,
-                Icon = ""
-            });
-            styles.Add(new ElementStyle(contextTag)
-            {
-                Background = "#facc2e",
-                Shape = Shape.Hexagon,
-                Icon = ""
-            });
+            // Estilos
+            styles.Add(new ElementStyle("MobileApp") { Background = "#9d33d6", Color = "#ffffff", Shape = Shape.MobileDevicePortrait, Icon = notString });
+            styles.Add(new ElementStyle("WebApp") { Background = "#7be3af", Color = "#ffffff", Shape = Shape.WebBrowser, Icon = notString });
+            styles.Add(new ElementStyle("APIGateway") { Background = "#0000ff", Color = "#ffffff", Shape = Shape.RoundedBox, Icon = notString });
+            styles.Add(new ElementStyle("Database") { Background = "#ff0000", Color = "#ffffff", Shape = Shape.Cylinder, Icon = notString });
+            styles.Add(new ElementStyle("CacheServer") { Background = "#f29549", Color = "#ffffff", Shape = Shape.Cylinder, Icon = notString });
+            styles.Add(new ElementStyle("SearchService") { Background = "#7f8c8d", Color = "#ffffff", Shape = Shape.RoundedBox, Icon = notString });
+            styles.Add(new ElementStyle("SyncService") { Background = "#c0392b", Color = "#ffffff", Shape = Shape.RoundedBox, Icon = notString });
+            styles.Add(new ElementStyle("FileStorage") { Background = "#d35400", Color = "#ffffff", Shape = Shape.RoundedBox, Icon = notString });
+            styles.Add(new ElementStyle("PostsModule") { Background = "#facc2e", Shape = Shape.Hexagon, Icon = notString });
+            styles.Add(new ElementStyle("ResponsesModule") { Background = "#facc2e", Shape = Shape.Hexagon, Icon = notString });
+            styles.Add(new ElementStyle("UsersModule") { Background = "#facc2e", Shape = Shape.Hexagon, Icon = notString });
+            styles.Add(new ElementStyle("NotificationsModule") { Background = "#facc2e", Shape = Shape.Hexagon, Icon = notString });
+            styles.Add(new ElementStyle("ModerationModule") { Background = "#facc2e", Shape = Shape.Hexagon, Icon = notString });
 
             ContainerView containerView =
-                viewSet.CreateContainerView(fastPorte, "Contenedor", "Diagrama de contenedores");
-            contextView.PaperSize = PaperSize.A4_Landscape;
+                viewSet.CreateContainerView(microbloggingPlatform, "Contenedor", "Diagrama de contenedores para la plataforma de Microblogging");
+            containerView.PaperSize = PaperSize.A4_Landscape;
             containerView.AddAllElements();
 
             // 3. Diagrama de Componentes
 
-            // Hiring
+            // Posts Module
+            Component domainLayerP = postsModule.AddComponent("Domain Layer", "", "Ruby");
+            Component postsController = postsModule.AddComponent("PostsController", "REST API endpoints de posts.", "REST Controller");
+            Component postsApplicationService = postsModule.AddComponent("PostsApplicationService", "Provee métodos para crear y gestionar posts.", "Component");
+            Component postsRepository = postsModule.AddComponent("PostsRepository", "Información de los posts", "Component");
 
-            Component domainLayerH =
-                hiring.AddComponent("Domain Layer", "", "Angular");
-            Component hiringController = hiring.AddComponent(
-                "HiringController",
-                "REST API endpoints de contratación y pagos de servicios.",
-                "REST Controller");
-            Component hiringApplicationService = hiring.AddComponent(
-                "HiringApplicationService",
-                "Provee métodos para la contración de servicios de transporte.",
-                "Component");
-            Component paymentApplicationService = hiring.AddComponent(
-                "PaymentApplicationService",
-                "Provee métodos para el pago de contratos",
-                "Component");
-            Component hiringRepository = hiring.AddComponent(
-                "HiringRepository",
-                "Información de los contratos",
-                "Component");
-            Component paymentFacade =
-                hiring.AddComponent("Payment Facade", "", "Component");
+            apiGateway.Uses(postsController, "", "JSON/HTTPS");
+            postsController.Uses(postsApplicationService, "Invoca métodos de gestión de posts");
+            postsApplicationService.Uses(domainLayerP, "Usa", "");
+            postsApplicationService.Uses(postsRepository, "", "");
+            postsRepository.Uses(database, "", "");
 
-            apiRest.Uses(hiringController, "", "JSON/HTTPS");
+            // Tags y Styles para Posts Module
+            domainLayerP.AddTags("DomainLayerP");
+            postsController.AddTags("PostsController");
+            postsApplicationService.AddTags("PostsApplicationService");
+            postsRepository.AddTags("PostsRepository");
 
-            hiringController.Uses(paymentApplicationService, "Invoca métodos de pago de contratos", "");
-            hiringController.Uses(hiringApplicationService, "Invoca métodos de contratación de servicios de trasnporte", "");
+            styles.Add(new ElementStyle("DomainLayerP") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("PostsController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("PostsApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("PostsRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
 
-            hiringApplicationService.Uses(domainLayerH, "Usa", "");
+            // Responses Module
+            Component domainLayerR = responsesModule.AddComponent("Domain Layer", "", "Ruby");
+            Component responsesController = responsesModule.AddComponent("ResponsesController", "REST API endpoints de respuestas.", "REST Controller");
+            Component responsesApplicationService = responsesModule.AddComponent("ResponsesApplicationService", "Provee métodos para crear y gestionar respuestas.", "Component");
+            Component responsesRepository = responsesModule.AddComponent("ResponsesRepository", "Información de las respuestas", "Component");
 
-            paymentApplicationService.Uses(domainLayerH, "Usa", "");
-            paymentApplicationService.Uses(paymentFacade, "Usa");
-            paymentApplicationService.Uses(hiringRepository, "", "");
+            apiGateway.Uses(responsesController, "", "JSON/HTTPS");
+            responsesController.Uses(responsesApplicationService, "Invoca métodos de gestión de respuestas");
+            responsesApplicationService.Uses(domainLayerR, "Usa", "");
+            responsesApplicationService.Uses(responsesRepository, "", "");
+            responsesRepository.Uses(database, "", "");
 
-            hiringRepository.Uses(database, "", "");
+            // Tags y Styles para Responses Module
+            domainLayerR.AddTags("DomainLayerR");
+            responsesController.AddTags("ResponsesController");
+            responsesApplicationService.AddTags("ResponsesApplicationService");
+            responsesRepository.AddTags("ResponsesRepository");
 
-            paymentFacade.Uses(payment, "JSON/HTTPS");
+            styles.Add(new ElementStyle("DomainLayerR") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ResponsesController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ResponsesApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ResponsesRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
 
-            // Tags
-            domainLayerH.AddTags("DomainLayerH");
-            hiringController.AddTags("HiringController");
-            paymentApplicationService.AddTags("PaymentApplicationService");
-            hiringApplicationService.AddTags("HiringApplicationService");
-            hiringRepository.AddTags("PaymentRepository");
-            paymentFacade.AddTags("PaymentFacade");
+            // Users Module
+            Component domainLayerU = usersModule.AddComponent("Domain Layer", "", "Ruby");
+            Component usersController = usersModule.AddComponent("UsersController", "REST API endpoints de usuarios.", "REST Controller");
+            Component usersApplicationService = usersModule.AddComponent("UsersApplicationService", "Provee métodos para crear y gestionar usuarios.", "Component");
+            Component usersRepository = usersModule.AddComponent("UsersRepository", "Información de los usuarios", "Component");
 
-            styles.Add(new ElementStyle("DomainLayerH")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("HiringController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("HiringApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PaymentFacade")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
+            apiGateway.Uses(usersController, "", "JSON/HTTPS");
+            usersController.Uses(usersApplicationService, "Invoca métodos de gestión de usuarios");
+            usersApplicationService.Uses(domainLayerU, "Usa", "");
+            usersApplicationService.Uses(usersRepository, "", "");
+            usersRepository.Uses(database, "", "");
 
-            ComponentView componentViewH =
-                viewSet.CreateComponentView(hiring, "Hiring", "Component Diagram");
-            componentViewH.PaperSize = PaperSize.A4_Landscape;
-            componentViewH.Add(webApplication);
-            componentViewH.Add(apiRest);
-            componentViewH.Add(database);
-            componentViewH.Add(payment);
-            componentViewH.Add(googleMaps);
-            componentViewH.AddAllComponents();
+            // Notifications Module
+            Component domainLayerN = notificationsModule.AddComponent("Domain Layer", "", "Ruby");
+            Component notificationsController = notificationsModule.AddComponent("NotificationsController", "REST API endpoints de notificaciones.", "REST Controller");
+            Component notificationsApplicationService = notificationsModule.AddComponent("NotificationsApplicationService", "Provee métodos para gestionar notificaciones.", "Component");
+            Component notificationsRepository = notificationsModule.AddComponent("NotificationsRepository", "Información de las notificaciones", "Component");
 
-            // Search
+            apiGateway.Uses(notificationsController, "", "JSON/HTTPS");
+            notificationsController.Uses(notificationsApplicationService, "Invoca métodos de gestión de notificaciones");
+            notificationsApplicationService.Uses(domainLayerN, "Usa", "");
+            notificationsApplicationService.Uses(notificationsRepository, "", "");
+            notificationsRepository.Uses(database, "", "");
 
-            Component domainLayerS =
-                search.AddComponent("Domain Layer", "", "Angular");
-            Component searchController = search.AddComponent(
-                "SearchController",
-                "REST API endpoints de búsqueda de servicios.",
-                "REST Controller");
-            Component searchService = search.AddComponent(
-                "SearchApplicationService",
-                "Provee métodos para la búsqueda de servicios",
-                "Component");
-            Component transportServiceRepository = search.AddComponent(
-                "TransportServiceRepository",
-                "Información de los servicios de transporte",
-                "Component");
+            // Moderation Module
+            Component domainLayerM = moderationModule.AddComponent("Domain Layer", "", "Ruby");
+            Component moderationController = moderationModule.AddComponent("ModerationController", "REST API endpoints de moderación.", "REST Controller");
+            Component moderationApplicationService = moderationModule.AddComponent("ModerationApplicationService", "Provee métodos para moderar contenido.", "Component");
+            Component moderationRepository = moderationModule.AddComponent("ModerationRepository", "Información de moderación", "Component");
 
-            apiRest.Uses(searchController, "", "JSON/HTTPS");
-            searchController.Uses(searchService, "Invoca métodos de búsqueda");
+            apiGateway.Uses(moderationController, "", "JSON/HTTPS");
+            moderationController.Uses(moderationApplicationService, "Invoca métodos de moderación");
+            moderationApplicationService.Uses(domainLayerM, "Usa", "");
+            moderationApplicationService.Uses(moderationRepository, "", "");
+            moderationRepository.Uses(database, "", "");
 
-            searchService.Uses(domainLayerS, "Usa", "");
-            searchService.Uses(transportServiceRepository, "", "");
-
-            transportServiceRepository.Uses(database, "", "");
+            // Interacciones con otros contenedores
+            searchService.Uses(postsRepository, "Busca posts");
+            searchService.Uses(usersRepository, "Busca usuarios");
+            syncService.Uses(database, "Sincroniza datos");
+            cacheServer.Uses(database, "Cachea datos");
+            fileStorage.Uses(apiGateway, "Almacena archivos");
 
             // Tags
-            domainLayerS.AddTags("DomainLayerS");
-            searchController.AddTags("SearchController");
-            searchService.AddTags("SearchApplicationService");
-            transportServiceRepository.AddTags("TransportServiceRepository");
+            searchService.AddTags("SearchService");
+            syncService.AddTags("SyncService");
+            cacheServer.AddTags("CacheServer");
+            fileStorage.AddTags("FileStorage");
 
-            styles.Add(new ElementStyle("DomainLayerS")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("SearchController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("SearchApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("TransportServiceRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
+            // Component Views
+            ComponentView componentViewPosts = viewSet.CreateComponentView(postsModule, "Posts", "Component Diagram");
+            componentViewPosts.PaperSize = PaperSize.A4_Landscape;
+            componentViewPosts.Add(apiGateway);
+            componentViewPosts.Add(database);
+            componentViewPosts.AddAllComponents();
 
-            ComponentView componentViewS = viewSet.CreateComponentView(search, "Search", "Component Diagram");
-            componentViewS.PaperSize = PaperSize.A4_Landscape;
-            componentViewS.Add(webApplication);
-            componentViewS.Add(apiRest);
-            componentViewS.Add(database);
-            componentViewS.AddAllComponents();
+            ComponentView componentViewResponses = viewSet.CreateComponentView(responsesModule, "Responses", "Component Diagram");
+            componentViewResponses.PaperSize = PaperSize.A4_Landscape;
+            componentViewResponses.Add(apiGateway);
+            componentViewResponses.Add(database);
+            componentViewResponses.AddAllComponents();
 
-            // Location
+            ComponentView componentViewUsers = viewSet.CreateComponentView(usersModule, "Users", "Component Diagram");
+            componentViewUsers.PaperSize = PaperSize.A4_Landscape;
+            componentViewUsers.Add(apiGateway);
+            componentViewUsers.Add(database);
+            componentViewUsers.AddAllComponents();
 
-            Component domainLayerL = location.AddComponent("Domain Layer", "", "");
-            Component locationController = location.AddComponent(
-                "SeguridadController",
-                "REST API endpoints de ubicación.",
-                "REST Controller");
-            Component locationService = location.AddComponent(
-                "LocationApplicationService",
-                "Provee métodos para la localización del usuario transportista.",
-                "Component");
-            Component carrierRepository = location.AddComponent(
-                "CarrierRepository",
-                "Información de los usuarios transportistas",
-                "Component");
+            ComponentView componentViewNotifications = viewSet.CreateComponentView(notificationsModule, "Notifications", "Component Diagram");
+            componentViewNotifications.PaperSize = PaperSize.A4_Landscape;
+            componentViewNotifications.Add(apiGateway);
+            componentViewNotifications.Add(database);
+            componentViewNotifications.AddAllComponents();
 
-            apiRest.Uses(locationController, "", "JSON/HTTPS");
-            locationController.Uses(locationService, "Invoca métodos de localización");
-
-            locationService.Uses(domainLayerL, "Usa", "");
-            locationService.Uses(carrierRepository, "", "");
-
-            carrierRepository.Uses(database, "", "");
-
-            carrierRepository.Uses(googleMaps, "", "JSON/HTTPS");
-
-            // Tags
-            domainLayerL.AddTags("DomainLayerL");
-            locationController.AddTags("LocationController");
-            locationService.AddTags("LocationApplicationService");
-            carrierRepository.AddTags("CarrierRepository");
-
-            styles.Add(new ElementStyle("DomainLayerL")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("LocationController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("LocationApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("CarrierRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewL =
-                viewSet.CreateComponentView(location, "Location", "Component Diagram");
-            componentViewL.PaperSize = PaperSize.A4_Landscape;
-            componentViewL.Add(webApplication);
-            componentViewL.Add(apiRest);
-            componentViewL.Add(database);
-            componentViewL.Add(googleMaps);
-            componentViewL.AddAllComponents();
-
-            // Personal Data
-
-            Component domainLayerPD = personalData.AddComponent("Domain Layer", "", "");
-            Component personalDataController = personalData.AddComponent(
-                "PersonalDataController",
-                "REST API endpoints de información personal del usuario.",
-                "REST Controller");
-            Component personalDataService = personalData.AddComponent(
-                "PersonalDatApplicationService",
-                "Provee métodos para el apartado de información personal del usuario",
-                "Component");
-            Component carrierPDRepository = personalData.AddComponent(
-                "CarrierRepository",
-                "Información personal de los usuarios transportistas",
-                "Component");
-            Component clientPDRepository = personalData.AddComponent(
-                "ClientRepository",
-                "Información personal de los usuarios clientes",
-                "Component");
-
-            apiRest.Uses(personalDataController, "", "JSON/HTTPS");
-            personalDataController.Uses(personalDataService, "Invoca métodos de información personal");
-
-            personalDataService.Uses(domainLayerPD, "Usa", "");
-            personalDataService.Uses(carrierPDRepository, "", "");
-            personalDataService.Uses(clientPDRepository, "", "");
-
-            carrierPDRepository.Uses(database, "", "");
-            clientPDRepository.Uses(database, "", "");
-
-            // Tags
-            domainLayerPD.AddTags("DomainLayerPD");
-            personalDataController.AddTags("PersonalDataController");
-            personalDataService.AddTags("PersonalDataApplicationService");
-            carrierPDRepository.AddTags("CarrierPDRepository");
-            clientPDRepository.AddTags("ClientPDRepository");
-
-            styles.Add(new ElementStyle("DomainLayerPD")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PersonalDataController")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("PersonalDataApplicationService")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("CarrierPDRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-            styles.Add(new ElementStyle("ClientPDRepository")
-            {
-                Shape = Shape.Component,
-                Background = "#facc2e",
-                Icon = ""
-            });
-
-            ComponentView componentViewPD = viewSet.CreateComponentView(
-                personalData, "Información personal", "Component Diagram");
-            componentViewPD.PaperSize = PaperSize.A4_Landscape;
-            componentViewPD.Add(webApplication);
-            componentViewPD.Add(apiRest);
-            componentViewPD.Add(database);
-            componentViewPD.AddAllComponents();
+            ComponentView componentViewModeration = viewSet.CreateComponentView(moderationModule, "Moderation", "Component Diagram");
+            componentViewModeration.PaperSize = PaperSize.A4_Landscape;
+            componentViewModeration.Add(apiGateway);
+            componentViewModeration.Add(database);
+            componentViewModeration.AddAllComponents();
 
             structurizrClient.UnlockWorkspace(workspaceId);
             structurizrClient.PutWorkspace(workspaceId, workspace);
